@@ -4,8 +4,9 @@ Team project for Lab 7: SOLID principles and pragmatic development in Java &amp;
 *Команда:** 
 * **Студент А (Java):** Резніченко Анастасія
 * **Студент Б (C#):** Батрак Орина
-##Розподіл завдань
-| Завдання | Принцип / Тема | Стек | Виконавець | | :--- | :--- | :--- | :--- | 
+# Розподіл завдань
+| Завдання | Принцип / Тема | Стек | Виконавець | 
+| :--- | :--- | :--- | :--- | 
 | **Task 1** | Single Responsibility Principle (SRP) | С# | Батрак Орина| 
 | **Task 2** | Open/Closed Principle (OCP) | Java | Резніченко Анастасія | 
 | **Task 3** | Liskov Substitution Principle (LSP) | Java | Резніченко Анастасія| 

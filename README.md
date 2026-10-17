@@ -3,7 +3,7 @@ Team project for Lab 7: SOLID principles and pragmatic development in Java &amp;
 
 **Варіант:** 7 
 
-# Команда:** 
+# Команда:
 * **Студент А (Java):** Резніченко Анастасія
 * **Студент Б (C#):** Батрак Орина
 * 

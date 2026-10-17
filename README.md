@@ -1,7 +1,9 @@
 # OOP-Lab7-SOLID-Team
 Team project for Lab 7: SOLID principles and pragmatic development in Java &amp; C#
-**Варіант:** 7 
-*Команда:** 
+
+# Варіант:** 7 
+
+# Команда:** 
 * **Студент А (Java):** Резніченко Анастасія
 * **Студент Б (C#):** Батрак Орина
 # Розподіл завдань

@@ -146,7 +146,7 @@ public class AuthGatewayService implements IUserManagementService{
 ```java
 public class AuthGatewayService implements IAuthenticationService { @Override public boolean authenticate(String userIdentifier, String secretKey) { return true; } @Override public void resetSecret(String userIdentifier) { /* логіка */ } }
 ```
-### C# (Завдання 1)
+### C# 
 #### Таблиця аналізу SOLID та декомпозиції (Завдання 1, 5)
 
 | Завдання | Використаний принцип                        | Мета principles                                                                                                | Що було зроблено & Що вийшло в результаті                                                                                                                                                                                                                                                  |

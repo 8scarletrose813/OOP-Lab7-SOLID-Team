@@ -1,9 +1,9 @@
 package variant7_reportexporter;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 public class ReportExporter {
-    public String export(ReportData data) {
-        return export(data);
+    public String export(ReportData data, ReportFormatter formatter) {
+        String formattedResult = formatter.formatReport(data);
+        System.out.println("Успішно створено: " + formattedResult);
+        return formattedResult;
     }
 }

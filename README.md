@@ -177,5 +177,27 @@ public IoTTelemetryProcessor()
     _kafkaPublisher = new KafkaAlertPublisher();
     _emergencyWriter = new LocalDiskEmergencyWriter();
 }
-**Після (Рефакторинг):**
+```
+
+**Після:** Виділено вузькоспеціалізовані інтерфейси за доменними теками (групування за функціональністю):
+
+Services/Persistence/ITelemetryRepository.cs
+
+Services/Alerts/IAlertPublisher.cs
+
+Services/Logging/IEmergencyWriter.cs
+
+А клас бізнес-логіки тепер залежить виключно від абстракцій і отримує їх через конструктор (Constructor Injection) із захистом від нульових посилань:
+```csharp
+public IoTTelemetryProcessor(
+    ITelemetryRepository timescaleRepository,
+    IAlertPublisher kafkaPublisher,
+    IEmergencyWriter emergencyWriter)
+{
+    _timescaleRepository = timescaleRepository ?? throw new ArgumentNullException(nameof(timescaleRepository));
+    _kafkaPublisher = kafkaPublisher ?? throw new ArgumentNullException(nameof(kafkaPublisher));
+    _emergencyWriter = emergencyWriter ?? throw new ArgumentNullException(nameof(emergencyWriter));
+}
+```
+
 

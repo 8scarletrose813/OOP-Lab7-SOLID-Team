@@ -1,4 +1,7 @@
 package variant7_reportexporter;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 public class ReportExporter {
     public String export(ReportData data, ExportFormat format) {
         StringBuilder builder = new StringBuilder();

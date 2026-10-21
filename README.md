@@ -146,3 +146,58 @@ public class AuthGatewayService implements IUserManagementService{
 ```java
 public class AuthGatewayService implements IAuthenticationService { @Override public boolean authenticate(String userIdentifier, String secretKey) { return true; } @Override public void resetSecret(String userIdentifier) { /* логіка */ } }
 ```
+### C# 
+#### Таблиця аналізу SOLID та декомпозиції (Завдання 1, 5)
+
+| Завдання | Використаний принцип                        | Мета principles                                                                                                | Що було зроблено & Що вийшло в результаті                                                                                                                                                                                                                                                  |
+| -------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Task 1   | **SRP** _(Single Responsibility Principle)_ | Розділити монолітний клас («God Object») на окремі компоненти за осями змін, виділивши доменну модель, валідацію, бізнес-логіку розрахунків, збереження та сповіщення. | **До:** Клас `FitnessActivityManager` виконував перевірки, математичні розрахунки, серіалізацію в JSON, запис у файл та HTTP-запити на відправку пушів в одному місці.<br><br>**Після:** Проведено декомпозицію на окремі сервіси (`WorkoutValidator`, `WorkoutCalculator`, `LocalFileWorkoutRepository`, `HttpPushNotificationService`) та клас-оркестратор. |
+| **Task 5** | **DIP** *(Dependency Inversion Principle)* | Усунути жорстке зв'язування високорівневої бізнес-логіки з низькорівневою інфраструктурою через оператор `new`. | **До:** Клас `IoTTelemetryProcessor` напряму конструював інфраструктурні сервіси через `new`.<br><br>**Після:** Виділено інтерфейси для кожного низькорівневого сервісу (`ITelemetryRepository`, `IAlertPublisher`, `IEmergencyWriter`) за доменними зонами. Залежності передаються через конструктор (Constructor Injection), а збірка здійснюється в Composition Root (`Program.cs`). |
+
+#### C# (Завдання 1. SRP)
+**До (Проблема):** Монолітний клас `FitnessActivityManager` поєднував у собі занадто багато обов'язків (осі змін), що порушувало принцип єдиної відповідальності та ускладнювало підтримку й тестування коду.
+
+**Після (Рефакторинг):** Код розділено за чистою архітектурною структурою проєкту на окремі модулі та сервіси:
+1. **Моделі даних (`Models/`)**: Створено окремі класи `WorkoutSessionData` та `WorkoutResult` для представлення вхідної телеметрії та результатів обробки.
+2. **Сервіс валідації (`IWorkoutValidator` / `WorkoutValidator`)**: Винесено всю логіку перевірки вхідних параметрів та генерації винятків.
+3. **Сервіс бізнес-логіки (`IWorkoutCalculator` / `WorkoutCalculator`)**: Ізольовано алгоритми розрахунку темпу, калорій та визначення пульсових зон (із застосуванням сучасного C# `switch expression` для KISS).
+4. **Репозиторій збереження (`IWorkoutRepository` / `LocalFileWorkoutRepository`)**: Виділено роботу з файловою системою та форматуванням JSON-звітів.
+5. **Сервіс сповіщень (`INotificationService` / `HttpPushNotificationService`)**: Ізольовано роботу з мережевими запитами (`HttpClient`) для надсилання пуш-повідомлень.
+6. **Оркестратор (`FitnessActivityManager`)**: Клас залишено виключно для координації послідовності виконання бізнес-процесу через передачу абстракцій (підготовка до DIP у Завданні 5).
+
+---### Хід думок та аналіз змін у коді (Завдання 5)
+
+**Завдання 5. Dependency Inversion Principle (DIP)**
+
+**До (Проблема):** Пряме створення інфраструктурних об'єктів усередині бізнес-логіки через оператор `new` (жорстке зв'язування / Tight Coupling):
+```csharp
+public IoTTelemetryProcessor()
+{
+    _timescaleRepository = new TimescaleDbTelemetryRepository();
+    _kafkaPublisher = new KafkaAlertPublisher();
+    _emergencyWriter = new LocalDiskEmergencyWriter();
+}
+```
+
+**Після:** Виділено вузькоспеціалізовані інтерфейси за доменними теками (групування за функціональністю):
+
+Services/Persistence/ITelemetryRepository.cs
+
+Services/Alerts/IAlertPublisher.cs
+
+Services/Logging/IEmergencyWriter.cs
+
+А клас бізнес-логіки тепер залежить виключно від абстракцій і отримує їх через конструктор (Constructor Injection) із захистом від нульових посилань:
+```csharp
+public IoTTelemetryProcessor(
+    ITelemetryRepository timescaleRepository,
+    IAlertPublisher kafkaPublisher,
+    IEmergencyWriter emergencyWriter)
+{
+    _timescaleRepository = timescaleRepository ?? throw new ArgumentNullException(nameof(timescaleRepository));
+    _kafkaPublisher = kafkaPublisher ?? throw new ArgumentNullException(nameof(kafkaPublisher));
+    _emergencyWriter = emergencyWriter ?? throw new ArgumentNullException(nameof(emergencyWriter));
+}
+```
+
+

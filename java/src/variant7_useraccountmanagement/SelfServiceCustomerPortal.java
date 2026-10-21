@@ -1,4 +1,7 @@
 package variant7_useraccountmanagement;
+// Опис предметної області: Екосистема пристроїв розумного дому.
+// Завдання коду: Забезпечення єдиного програмного інтерфейсу для взаємодії з різними типами побутових розумних пристроїв.
+
 
 public class SelfServiceCustomerPortal implements IAuthenticationService, IUserRegistrationService, IGdprExportService {
     @Override public void registerUser(String userIdentifier, String secretKey) { System.out.println("User registered: " + userIdentifier); }

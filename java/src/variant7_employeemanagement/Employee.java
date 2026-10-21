@@ -1,4 +1,8 @@
 package variant7_employeemanagement;
+
+// Опис предметної області: Управління банківськими рахунками клієнтів.
+// Завдання коду: Забезпечити зняття та поповнення коштів на рахунках, переказ між рахунками та розрахунок відсотків.
+
 public class Employee {
         private String employeeId;
         private String fullName;

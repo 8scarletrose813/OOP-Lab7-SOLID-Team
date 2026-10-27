@@ -4,6 +4,9 @@ using Variant7_IoTTelemetryProcessor.Services.Persistence;
 using Variant7_IoTTelemetryProcessor.Services.Alerts;
 using Variant7_IoTTelemetryProcessor.Services.Logging;
 
+//Опис предметної області: Моніторинг промислових IoT-пристроїв та обробка телеметрії.
+//Завдання коду: Обробка показників датчиків температури та тиску, збереження часових рядів у TimescaleDB, публікація критичного критичного сповіщення в Apache Kafka та аварійний локальний запис.
+
 namespace Variant7_IoTTelemetryProcessor
 {
     public class IoTTelemetryProcessor

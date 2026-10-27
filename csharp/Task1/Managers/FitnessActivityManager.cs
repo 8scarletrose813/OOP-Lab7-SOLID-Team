@@ -4,11 +4,13 @@ using Variant7_FitnessTracker.Services.Notifications;
 using Variant7_FitnessTracker.Services.Persistence;
 using Variant7_FitnessTracker.Services.Validation;
 
+// Опис предметної області: Мобільний додаток для фітнесу та спортивних тренувань.
+// Завдання коду: Обробка даних забігу/тренування — валідація показань датчиків, розрахунок спалених калорій, середнього темпу та пульсових зон, формування підсумкового звіту активності у форматі JSON, збереження тренування у файл локальної бази та відправка пуш-сповіщення у мобільний профіль користувача.
+
+
 namespace Variant7_FitnessTracker.Managers
 {
-    /// <summary>
     /// Клас-оркестратор, який координує виконання бізнес-процесу обробки тренування.
-    /// </summary>
     public class FitnessActivityManager
     {
         private readonly IWorkoutValidator _validator;

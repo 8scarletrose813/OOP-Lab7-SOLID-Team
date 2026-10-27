@@ -6,14 +6,15 @@ public class Appointment {
     private double insuranceCoverage;
     private double patientPayable;
     private String status;
-    public Appointment(int appointmentId, Patient patient, Doctor doctor, double consultationCost, double insuranceCoverage, double patientPayable, String status){
+    public Appointment(int appointmentId, Patient patient, Doctor doctor){
         this.appointmentId = appointmentId;
         this.patient = patient;
         this.doctor = doctor;
-        this.consultationCost = consultationCost;
-        this.insuranceCoverage = insuranceCoverage;
-        this.patientPayable = patientPayable;
+        this.consultationCost = doctor.calculateConsultationFee();
+        this.insuranceCoverage = calculateInsuranceCoverage();
+        this.patientPayable = this.consultationCost - this.insuranceCoverage;
         this.status = "Scheduled";
+        this.confirm();
     }
     public int getAppointmentId() {
         return appointmentId;
@@ -44,5 +45,25 @@ public class Appointment {
     }
     public void cancel() {
         this.status = "Cancelled";
+    }
+
+    private double calculateInsuranceCoverage(){
+        if(patient.isHasInsurance()){
+            return this.consultationCost * 0.80;
+        }
+        else {
+            return 0.0;
+        }
+    }
+    public String generateInvoice(){
+        return "Квитанція прийому #" + appointmentId +
+                "\nПацієнт: " + patient.getFullName() +
+                "\nЛікар: " + doctor.getName() + " (" + doctor.getCategory() + ")" +
+                "\nВартість: " + consultationCost + " грн" +
+                "\nПокриття страховкою: " + insuranceCoverage + " грн" +
+                "\nДо сплати пацієнтом: " + patientPayable + " грн" ;
+
+
+
     }
 }

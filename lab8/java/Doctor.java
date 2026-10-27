@@ -27,4 +27,15 @@ public class Doctor {
     public double getBaseConsultationFee() {
         return baseConsultationFee;
     }
+    public double calculateConsultationFee(){
+        if("Professor".equalsIgnoreCase(category)){
+            return baseConsultationFee * 2.0;
+        }
+        else if("Specialist".equalsIgnoreCase(category)){
+            return baseConsultationFee * 1.4;
+        }
+        else{
+            return baseConsultationFee;
+        }
+    }
 }

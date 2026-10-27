@@ -333,3 +333,94 @@ new Patient(101, "Іван Петренко", new StandardInsurancePolicy("INS-9
 Нова страхова схема — аналогічно: новий клас з `IInsurancePolicy`, передати його в `Patient`.
 
 ---
+
+
+
+## Завдання 5 — Low Coupling (CBO) + High Cohesion (LCOM4)
+
+Метрики, пораховані за методичкою на коді після Завдання 3, виявили два порушення нормативів.
+
+### Проблема 1: CBO контролера = 5 (норма ≤ 4)
+
+`ClinicAppointmentService` залежав від `AppointmentRepository`, `NotificationService`, `Appointment`, `Patient`, `Doctor`.
+
+**Рішення (Indirection):** DTO-команда.
+
+| Файл | Зміна |
+|---|---|
+| `ScheduleAppointmentCommand.cs` (новий) | `public sealed record ScheduleAppointmentCommand(int AppointmentId, Patient Patient, Doctor Doctor);` |
+| `ClinicAppointmentService.cs` | `ScheduleAppointment(int, Patient, Doctor)` → `ScheduleAppointment(ScheduleAppointmentCommand command)` |
+
+Залежності сервісу тепер: `AppointmentRepository`, `NotificationService`, `Appointment`, `ScheduleAppointmentCommand` → **CBO = 4**.
+
+### Проблема 2: LCOM4 `Appointment` = 2 (ціль 1)
+
+Методи `Appointment` розпадалися на два незв'язані кластери:
+
+* `Confirm`, `Cancel` — працюють зі `Status`;
+* `CalculateInsuranceCoverage`, `GenerateInvoice` — працюють з `Patient`, `ConsultationCost`.
+
+`CalculateInsuranceCoverage` пішов у `Patient` (Завдання 4). Залишалось сформувати квитанцію.
+
+**Рішення (Pure Fabrication):** формування квитанції — відповідальність представлення, а не домену.
+
+| Файл | Зміна |
+|---|---|
+| `InvoiceGenerator.cs` (новий) | `string Generate(Appointment appointment)` — той самий текст квитанції, що був у `Appointment.GenerateInvoice()` |
+| `Appointment.cs` | Метод `GenerateInvoice()` **видалено**. Додано делегуючі властивості `PatientName`, `DoctorName`, `DoctorCategory` |
+
+Делегуючі властивості потрібні для **Закону Деметри**: `InvoiceGenerator` звертається до `appointment.PatientName`, а не до ланцюжка `appointment.Patient.FullName`.
+
+Тепер `Appointment` має лише `Confirm` і `Cancel` над одним полем `Status` → **LCOM4 = 1**.
+
+### Зміни в `Program.cs` (composition root)
+
+* створюються `ConsultationFeePolicyFactory` та `InvoiceGenerator`;
+* пацієнт отримує `new StandardInsurancePolicy("INS-998877")`;
+* лікар отримує політику з фабрики;
+* виклик сервісу: `ScheduleAppointment(new ScheduleAppointmentCommand(3001, patient, doctor))`;
+* квитанція: `Console.WriteLine(invoiceGenerator.Generate(appointment));`.
+
+Очікуваний вивід (як і до рефакторингу):
+
+```
+[Електронна карта] Запис #3001 збережено у файл appointments.log.
+[SMS Gateway] Надіслано SMS на номер: +380971234567
+Квитанція прийому #3001
+Пацієнт: Іван Петренко
+Лікар: Д-р Олексій Коваль (Professor)
+Вартість: 1600 грн
+Покриття страховкою: 1280 грн
+До сплати пацієнтом: 320 грн
+```
+
+---
+
+## Метрики (коротко)
+
+Повні розрахунки, графи методів та висновки — у `docs/lab8-task5-metrics.md`.
+
+| Клас | CBO | LCOM4 |
+|---|---|---|
+| `Appointment` | 2 → 2 | 2 → **1** |
+| `Doctor` | 0 → 1 | 1 → 1 |
+| `Patient` | 0 → 1 | — → 1 |
+| `ClinicAppointmentService` | 5 → **4** | 1 → 1 |
+
+Ключове: CBO `Doctor` і `Patient` зріс з 0 до 1, але це залежність від **стабільного інтерфейсу**, і вона замінила розгалуження за типами. `Program` (composition root) має CBO = 10, норматив ≤ 4 до нього не застосовується.
+
+---
+
+## Відображення на патерни GRASP
+
+| Патерн | Де застосовано |
+|---|---|
+| Polymorphism | `GeneralFeePolicy` / `SpecialistFeePolicy` / `ProfessorFeePolicy`; `NoInsurancePolicy` / `StandardInsurancePolicy` |
+| Protected Variations | `IConsultationFeePolicy`, `IInsurancePolicy` (правила тарифікації та страхування); раніше — `AppointmentRepository`, `NotificationService` |
+| Information Expert | `Patient.CalculateInsuranceCoverage` (пацієнт знає свою страховку); `Doctor.CalculateConsultationFee` |
+| Pure Fabrication | `ConsultationFeePolicyFactory`, `InvoiceGenerator` |
+| Indirection | `ScheduleAppointmentCommand` між клієнтським шаром і контролером |
+| Low Coupling / High Cohesion | Метрики CBO ≤ 4 та LCOM4 = 1 (розділ 4) |
+| Закон Деметри | Делегуючі властивості `Appointment.PatientName / DoctorName / DoctorCategory` |
+
+---

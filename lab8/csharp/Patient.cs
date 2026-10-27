@@ -1,17 +1,22 @@
 public class Patient
 {
+    private readonly IInsurancePolicy _insurance;
+
     public int Id { get; }
     public string FullName { get; }
-    public bool HasInsurance { get; }
-    public string InsurancePolicyNumber { get; }
     public string Phone { get; }
 
-    public Patient(int id, string fullName, bool hasInsurance, string insurancePolicyNumber, string phone)
+    public Patient(int id, string fullName, IInsurancePolicy insurance, string phone)
     {
         Id = id;
         FullName = fullName;
-        HasInsurance = hasInsurance;
-        InsurancePolicyNumber = insurancePolicyNumber;
+        _insurance = insurance;
         Phone = phone;
+    }
+
+    // Information Expert: пацієнт знає свою страхову політику, тож Appointment не розгалужується за HasInsurance.
+    public double CalculateInsuranceCoverage(double consultationCost)
+    {
+        return _insurance.CalculateCoverage(consultationCost);
     }
 }

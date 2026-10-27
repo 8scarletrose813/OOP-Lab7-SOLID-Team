@@ -10,13 +10,18 @@ public class Appointment
     public double PatientPayable { get; }
     public string Status { get; private set; }
 
+    // Делегуючі властивості(закон деметри)
+    public string PatientName => Patient.FullName;
+    public string DoctorName => Doctor.Name;
+    public string DoctorCategory => Doctor.Category;
+
     public Appointment(int appointmentId, Patient patient, Doctor doctor)
     {
         AppointmentId = appointmentId;
         Patient = patient;
         Doctor = doctor;
         ConsultationCost = doctor.CalculateConsultationFee();
-        InsuranceCoverage = CalculateInsuranceCoverage();
+        InsuranceCoverage = patient.CalculateInsuranceCoverage(ConsultationCost);
         PatientPayable = ConsultationCost - InsuranceCoverage;
         Status = "Scheduled";
         Confirm();
@@ -34,27 +39,5 @@ public class Appointment
     public void Cancel()
     {
         Status = "Cancelled";
-    }
-
-    private double CalculateInsuranceCoverage()
-    {
-        if (Patient.HasInsurance)
-        {
-            return ConsultationCost * 0.80;
-        }
-        else
-        {
-            return 0.0;
-        }
-    }
-
-    public string GenerateInvoice()
-    {
-        return "Квитанція прийому #" + AppointmentId +
-                "\nПацієнт: " + Patient.FullName +
-                "\nЛікар: " + Doctor.Name + " (" + Doctor.Category + ")" +
-                "\nВартість: " + ConsultationCost + " грн" +
-                "\nПокриття страховкою: " + InsuranceCoverage + " грн" +
-                "\nДо сплати пацієнтом: " + PatientPayable + " грн";
     }
 }

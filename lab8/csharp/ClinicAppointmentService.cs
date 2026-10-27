@@ -9,11 +9,11 @@ public class ClinicAppointmentService
         _notificationService = notificationService;
     }
 
-    public Appointment ScheduleAppointment(int appointmentId, Patient patient, Doctor doctor)
+    public Appointment ScheduleAppointment(ScheduleAppointmentCommand command)
     {
-        Appointment appointment = new Appointment(appointmentId, patient, doctor);
+        Appointment appointment = new Appointment(command.AppointmentId, command.Patient, command.Doctor);
         _appointmentRepository.Save(appointment);
-        _notificationService.SendSms(patient, appointment);
+        _notificationService.SendSms(command.Patient, appointment);
         return appointment;
     }
 }

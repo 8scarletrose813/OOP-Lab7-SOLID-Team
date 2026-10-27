@@ -1,8 +1,30 @@
 
 public class Doctor {
-    public int id;
-    public String name;
-    public String specialty;
-    public String category; // "General", "Specialist", "Professor"
-    public double baseConsultationFee;
+    private int id;
+    private String name;
+    private String specialty;
+    private String category; // "General", "Specialist", "Professor"
+    private double baseConsultationFee;
+    public Doctor(int id, String name, String specialty, String category, double baseConsultationFee){
+        this.id = id;
+        this.name =name;
+        this.specialty = specialty;
+        this.category = category;
+        this.baseConsultationFee = baseConsultationFee;
+    }
+    public int getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
+    }
+    public String getSpecialty() {
+        return specialty;
+    }
+    public String getCategory() {
+        return category;
+    }
+    public double getBaseConsultationFee() {
+        return baseConsultationFee;
+    }
 }

@@ -1,6 +1,6 @@
 public class ClinicAppointmentService{
-    private AppointmentRepository appointmentRepository;
-    private NotificationService notificationService;
+    private final AppointmentRepository appointmentRepository;
+    private final NotificationService notificationService;
     public ClinicAppointmentService(AppointmentRepository appointmentRepository, NotificationService notificationService){
         this.appointmentRepository = appointmentRepository;
         this.notificationService = notificationService;

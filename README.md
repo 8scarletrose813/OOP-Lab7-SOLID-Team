@@ -264,3 +264,72 @@ public static void main(String[] args) {
 }
 ```
 **Навіщо:** Вимога **Thin Console UI**. Шар UI тепер не містить жодного `if-else`, обчислень чи прямих викликів файлової системи. Його єдина відповідальність — відобразити користувачу готовий результат.
+
+
+## Завдання 4 — Polymorphism + Protected Variations
+
+### Що було
+
+У коді лишалися два каскади умовних операторів за типом:
+
+1. `Doctor.CalculateConsultationFee()` — `if / else if / else` за рядком `Category`:
+   * `"Professor"` → `BaseConsultationFee * 2.0`
+   * `"Specialist"` → `BaseConsultationFee * 1.4`
+   * інакше → `BaseConsultationFee`
+2. `Appointment.CalculateInsuranceCoverage()` — `if (Patient.HasInsurance)` → 80 % вартості, інакше `0`.
+
+Обидва місця — точки нестабільності: нова категорія лікаря чи новий вид страхування змушували б редагувати існуючі класи.
+
+### Що зроблено
+
+#### Тарифікація за категорією лікаря
+
+| Файл | Що в ньому |
+|---|---|
+| `IConsultationFeePolicy.cs` | Стабільний інтерфейс (**Protected Variations**): `string CategoryName { get; }` та `double Calculate(double baseFee)` |
+| `FeePolicies.cs` | Три реалізації (**Polymorphism**): `GeneralFeePolicy` (×1.0), `SpecialistFeePolicy` (×1.4), `ProfessorFeePolicy` (×2.0) |
+| `ConsultationFeePolicyFactory.cs` | **Pure Fabrication + Dictionary Dispatch**: словник «назва категорії → політика», пошук без урахування регістру. Метод `Create(string category)`. Невідома категорія → `GeneralFeePolicy` (збережено поведінку гілки `else`) |
+| `Doctor.cs` | Приймає `IConsultationFeePolicy` у конструкторі; `CalculateConsultationFee()` тепер лише делегує політиці; `Category` — похідна властивість (`_feePolicy.CategoryName`) |
+
+Зміна сигнатури конструктора `Doctor`:
+
+```csharp
+// було
+new Doctor(501, "Д-р Олексій Коваль", "Вища", "Professor", 800.0);
+// стало
+new Doctor(501, "Д-р Олексій Коваль", "Вища", feePolicyFactory.Create("Professor"), 800.0);
+```
+
+#### Страхове покриття
+
+| Файл | Що в ньому |
+|---|---|
+| `IInsurancePolicy.cs` | Стабільний інтерфейс: `double CalculateCoverage(double consultationCost)` |
+| `InsurancePolicies.cs` | `NoInsurancePolicy` (покриття 0) та `StandardInsurancePolicy` (покриття 80 %, зберігає `PolicyNumber`) |
+| `Patient.cs` | Замість `HasInsurance` + `InsurancePolicyNumber` тримає `IInsurancePolicy`; додано метод `CalculateInsuranceCoverage(double cost)` (**Information Expert**: пацієнт знає свою страховку) |
+| `Appointment.cs` | Приватний `CalculateInsuranceCoverage()` з `if` **видалено**; у конструкторі: `InsuranceCoverage = patient.CalculateInsuranceCoverage(ConsultationCost)` |
+
+Зміна сигнатури конструктора `Patient`:
+
+```csharp
+// було
+new Patient(101, "Іван Петренко", true, "INS-998877", "+380971234567");
+// стало
+new Patient(101, "Іван Петренко", new StandardInsurancePolicy("INS-998877"), "+380971234567");
+```
+
+Пацієнт без страховки: `new NoInsurancePolicy()` замість `HasInsurance = false`.
+
+#### Що вирішено не робити
+
+Поле `Status` (`Scheduled / Confirmed / Cancelled`) має одну перевірку в `Confirm()`, каскаду немає. Патерн State був би надлишковим, тому `Status` залишено рядком. Обґрунтування — в ADR-004.
+
+### Як тепер додати нову категорію лікаря
+
+1. Створити клас, що реалізує `IConsultationFeePolicy` (наприклад, `ResidentFeePolicy`, `CategoryName => "Resident"`).
+2. Додати один рядок `Register(new ResidentFeePolicy());` у конструктор `ConsultationFeePolicyFactory`.
+3. Змінювати `Doctor`, `Appointment`, `ClinicAppointmentService` **не потрібно**.
+
+Нова страхова схема — аналогічно: новий клас з `IInsurancePolicy`, передати його в `Patient`.
+
+---

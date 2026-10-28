@@ -3,7 +3,7 @@ package ex3;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DepositContract {
+public class DepositContract implements Cloneable {
     private String productType;
     private double interestRate;
     private int termMonths;
@@ -43,14 +43,30 @@ public class DepositContract {
 
     @Override
     public String toString() {
-        return "DepositContract{" +
-                "productType='" + productType + '\'' +
-                ", interestRate=" + interestRate +
-                ", termMonths=" + termMonths +
-                ", earlyTerminationTerms='" + earlyTerminationTerms + '\'' +
-                ", client=" + client +
-                ", paymentSchedules=" + paymentSchedules +
-                ", addendums=" + addendums +
-                '}';
+        return ("\nproductType='" + productType + '\'' +
+                "\n, interestRate=" + interestRate +
+                "\n, termMonths=" + termMonths +
+                "\n, earlyTerminationTerms='" + earlyTerminationTerms + '\'' +
+                "\n, client=" + client +
+                "\n, paymentSchedules=" + paymentSchedules +
+                "\n, addendums=" + addendums);
+    }
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        DepositContract clone =  (DepositContract) super.clone();
+        ArrayList<Addendum> addendums = new ArrayList<>();
+        ArrayList<PaymentSchedule> paymentSchedules = new ArrayList<>();
+        for (Addendum addendum: this.addendums){
+            Addendum cloneAddendums = new Addendum(addendum);
+            addendums.add(cloneAddendums);
+        }
+        for(PaymentSchedule item: this.paymentSchedules){
+           PaymentSchedule clonePaymentSchedule = (PaymentSchedule) item.clone();
+            paymentSchedules.add(clonePaymentSchedule);
+
+        }
+        clone.addendums = addendums;
+        clone.paymentSchedules = paymentSchedules;
+        return clone;
     }
 }

@@ -2,7 +2,7 @@ package ex3;
 
 public class Task3 {
     public static void main(String[] args) throws CloneNotSupportedException {
-        DepositContract depositContract = new DepositContract("Депозит Стабільний", 15.0, 12,"Виплата 50% відсотків при достроковому закритті");
+        DepositContract depositContract = new DepositContract("Депозит Стабільний,  12 міс.", 15.0, 12,"Виплата 50% відсотків при достроковому закритті");
         Addendum addendum = new Addendum("Базове обслуговування", "Стандартний пакет послуг");
         depositContract.addAddendum(addendum);
         PaymentSchedule paymentSchedule = new PaymentSchedule("01.12.2026", 1250.0);

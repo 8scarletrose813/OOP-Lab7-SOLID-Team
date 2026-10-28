@@ -1,0 +1,43 @@
+@startuml task1_singleton
+skinparam classAttributeIconSize 0
+
+class CurrencyRateService <<Singleton>> {
+    - {static} instance: CurrencyRateService
+    - rates: Map<String, CurrencyRate>
+    - CurrencyRateService()
+    + {static} getInstance(): CurrencyRateService
+    + setRate(currency: String, buy: double, sell: double, time: String): void
+    + getRate(currency: String): CurrencyRate
+}
+
+class CurrencyRate {
+    - currencyCode: String
+    - buyRate: double
+    - sellRate: double
+    - lastUpdated: String
+    + CurrencyRate(currencyCode: String, buyRate: double, sellRate: double, lastUpdated: String)
+    + getCurrencyCode(): String
+    + getBuyRate(): double
+    + getSellRate(): double
+    + getLastUpdated(): String
+    + setBuyRate(buyRate: double): void
+    + setSellRate(sellRate: double): void
+    + setLastUpdated(lastUpdated: String): void
+    + toString(): String
+}
+
+class Task1 {
+    + {static} main(args: String[]): void
+}
+
+CurrencyRateService "1" *-- "0..*" CurrencyRate : rates
+Task1 ..> CurrencyRateService : getInstance()
+Task1 ..> CurrencyRate : використовує
+
+note top of CurrencyRateService
+  Роль у шаблоні: Singleton
+  Приватний конструктор і статичний метод getInstance()
+  гарантують єдиний екземпляр служби курсів для всього банку.
+end note
+
+@enduml

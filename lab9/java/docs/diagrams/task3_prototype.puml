@@ -1,0 +1,68 @@
+@startuml task3_prototype
+skinparam classAttributeIconSize 0
+
+interface Cloneable <<Prototype>>
+
+class DepositContract <<ConcretePrototype>> {
+    - productType: String
+    - interestRate: double
+    - termMonths: int
+    - earlyTerminationTerms: String
+    - client: Client
+    - paymentSchedules: List<PaymentSchedule>
+    - addendums: List<Addendum>
+    + DepositContract(productType: String, interestRate: double, termMonths: int, earlyTerminationTerms: String)
+    + addAddendum(addendum: Addendum): void
+    + addPaymentSchedule(schedule: PaymentSchedule): void
+    + setClient(client: Client): void
+    + toString(): String
+    # clone(): Object
+}
+
+class Client {
+    - fullName: String
+    - accountNumber: String
+    + Client(fullName: String, accountNumber: String)
+    + toString(): String
+}
+
+class Addendum {
+    - title: String
+    - description: String
+    + Addendum(title: String, description: String)
+    + Addendum(other: Addendum)
+    + toString(): String
+}
+
+class PaymentSchedule <<ConcretePrototype>> {
+    - paymentDate: String
+    - amount: double
+    + PaymentSchedule(paymentDate: String, amount: double)
+    + clone(): Object
+    + toString(): String
+}
+
+class Task3 {
+    + {static} main(args: String[]): void
+}
+
+DepositContract ..|> Cloneable
+PaymentSchedule ..|> Cloneable
+
+DepositContract "1" o-- "0..1" Client : client
+DepositContract "1" *-- "0..*" Addendum : addendums
+DepositContract "1" *-- "0..*" PaymentSchedule : paymentSchedules
+
+Task3 ..> DepositContract : clone() / creates
+Task3 ..> Client : creates
+Task3 ..> Addendum : creates
+Task3 ..> PaymentSchedule : creates
+
+note top of DepositContract
+  Роль: ConcretePrototype
+  Глубокое клонирование (Deep Copy) списков addendums 
+  и paymentSchedules позволяет обходить задержку 
+  Thread.sleep(1500) конструктора.
+end note
+
+@enduml

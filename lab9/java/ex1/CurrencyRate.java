@@ -1,3 +1,5 @@
+package ex1;
+
 public class CurrencyRate {
     private String currencyCode;
     private double buyRate;
@@ -33,6 +35,6 @@ public class CurrencyRate {
     }
     @Override
     public String toString() {
-        return ( currencyCode +"Купівля" + buyRate + "/ Продаж " + sellRate + lastUpdated);
+        return ( currencyCode +" Купівля " + buyRate + " / Продаж " + sellRate +" Час: "+ lastUpdated);
     }
 }

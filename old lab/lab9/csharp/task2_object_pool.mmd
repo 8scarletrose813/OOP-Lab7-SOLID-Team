@@ -1,0 +1,50 @@
+classDiagram
+direction LR
+class PaymentGateway {
+  <<Client>>
+  -PaymentConnectionPool _pool
+  -Queue~Payment~ _queue
+  -Dictionary~int,PaymentConnection~ _active
+  +Submit(Payment payment) void
+  +Complete(int paymentNumber) void
+  +CompleteAll() void
+  -Start(PaymentConnection conn, Payment payment) void
+}
+class PaymentConnectionPool {
+  <<Object Pool>>
+  -Queue~PaymentConnection~ _free
+  -HashSet~PaymentConnection~ _busy
+  -List~PaymentConnection~ _all
+  +int MaxSize
+  +int CreatedCount
+  +TryAcquire(out PaymentConnection connection) bool
+  +Release(PaymentConnection connection) void
+  +PrintStatistics() void
+}
+class PaymentConnection {
+  <<Pooled Object>>
+  +string Id
+  +string SessionId
+  +Payment CurrentPayment
+  +int PaymentsProcessed
+  -Establish() void
+  +Attach(Payment payment) void
+  ~Reset() void
+}
+class Payment {
+  <<record>>
+  +int Number
+  +string Account
+  +decimal Amount
+}
+class Logger {
+  <<static>>
+  +Log(string source, string message)$ void
+}
+PaymentGateway "1" --> "1" PaymentConnectionPool : uses
+PaymentGateway "1" o-- "0..*" Payment : queue
+PaymentConnectionPool "1" *-- "0..4" PaymentConnection : owns
+PaymentConnection "1" --> "0..1" Payment : CurrentPayment
+PaymentGateway ..> PaymentConnection
+PaymentConnectionPool ..> Logger
+PaymentConnection ..> Logger

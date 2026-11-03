@@ -1,5 +1,5 @@
 using System;
-using PrutCreditBank.Services;
+using PrutCreditBank.Task1.Services;
 
 namespace PrutCreditBank.Task3.Models
 {

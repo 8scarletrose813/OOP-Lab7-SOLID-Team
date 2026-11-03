@@ -1,6 +1,6 @@
 using System;
 
-namespace PrutCreditBank.Services
+namespace PrutCreditBank.Task1.Services
 {
     public static class Logger
     {

@@ -1,8 +1,7 @@
-using PrutCreditBank.Builders;
-using PrutCreditBank.Infrastructure;
-using PrutCreditBank.Models;
+using PrutCreditBank.Task1.Builders;
+using PrutCreditBank.Task1.Models;
 
-namespace PrutCreditBank.Services
+namespace PrutCreditBank.Task1.Services
 {
     public class CreditDirector
     {

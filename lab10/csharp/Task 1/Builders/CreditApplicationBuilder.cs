@@ -1,8 +1,8 @@
 using System;
-using PrutCreditBank.Infrastructure;
-using PrutCreditBank.Models;
+using PrutCreditBank.Task1.Services;
+using PrutCreditBank.Task1.Models;
 
-namespace PrutCreditBank.Builders
+namespace PrutCreditBank.Task1.Builders
 {
     public class CreditApplicationBuilder : ICreditApplicationBuilder
     {

@@ -1,6 +1,6 @@
-using PrutCreditBank.Models;
+using PrutCreditBank.Task1.Models;
 
-namespace PrutCreditBank.Builders
+namespace PrutCreditBank.Task1.Builders
 {
     public interface ICreditApplicationBuilder
     {

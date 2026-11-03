@@ -1,4 +1,4 @@
-namespace PrutCreditBank.Models
+namespace PrutCreditBank.Task1.Models
 {
     public class CreditApplication
     {

@@ -15,7 +15,7 @@ public class BankBranch {
         TariffPlan tariffPlan = factory.createTariff();
 
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println( "[" + time + "]" + "[" + branchName + "]" + "Відкрито новий пакет послуг для клієнта: " + clientName);
+        System.out.println( "[" + time + "]" + "[" + branchName + "]" + " Відкрито новий пакет послуг для клієнта: " + clientName);
 
         System.out.println("Картка: " + bankCard.getCardDetails());
         System.out.println("Рахунок: " + bankAccount.getAccountDetails());

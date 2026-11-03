@@ -1,0 +1,84 @@
+---
+title: Завдання 1. Builder — кредитна заявка (Банк «Прут-Кредит»)
+---
+classDiagram
+    direction TB
+
+    class ICreditApplicationBuilder {
+        <<interface · Builder>>
+        +SetClient(client: string) ICreditApplicationBuilder
+        +SetAmount(amount: decimal) ICreditApplicationBuilder
+        +SetTerm(termMonths: int) ICreditApplicationBuilder
+        +SetPurpose(purpose: string) ICreditApplicationBuilder
+        +SetCollateral(collateral: string) ICreditApplicationBuilder
+        +SetGuarantor(guarantor: string) ICreditApplicationBuilder
+        +SetIncomeCertificate(hasCertificate: bool) ICreditApplicationBuilder
+        +SetInsurance(hasInsurance: bool) ICreditApplicationBuilder
+        +Build() CreditApplication
+    }
+
+    class CreditApplicationBuilder {
+        <<ConcreteBuilder>>
+        -_client: string
+        -_amount: decimal
+        -_termMonths: int
+        -_purpose: string = "Споживчі потреби"
+        -_collateral: string
+        -_guarantor: string
+        -_hasIncomeCertificate: bool
+        -_hasInsurance: bool
+        +SetClient(client: string) ICreditApplicationBuilder
+        +SetAmount(amount: decimal) ICreditApplicationBuilder
+        +SetTerm(termMonths: int) ICreditApplicationBuilder
+        +SetPurpose(purpose: string) ICreditApplicationBuilder
+        +SetCollateral(collateral: string) ICreditApplicationBuilder
+        +SetGuarantor(guarantor: string) ICreditApplicationBuilder
+        +SetIncomeCertificate(hasCertificate: bool) ICreditApplicationBuilder
+        +SetInsurance(hasInsurance: bool) ICreditApplicationBuilder
+        +Build() CreditApplication
+    }
+
+    class CreditApplication {
+        <<Product · immutable>>
+        +Client: string «get»
+        +Amount: decimal «get»
+        +TermMonths: int «get»
+        +Purpose: string «get»
+        +Collateral: string «get»
+        +Guarantor: string «get»
+        +HasIncomeCertificate: bool «get»
+        +HasInsurance: bool «get»
+        ~CreditApplication(client, amount, termMonths, purpose, collateral, guarantor, hasIncomeCertificate, hasInsurance)
+        +DisplayInfo() void
+    }
+
+    class CreditDirector {
+        <<Director>>
+        -_builder: ICreditApplicationBuilder
+        +CreditDirector(builder: ICreditApplicationBuilder)
+        +BuildConsumerLoan(clientName: string) CreditApplication
+        +BuildAutoLoan(clientName: string, carModel: string) CreditApplication
+    }
+
+    class Logger {
+        <<utility>>
+        +Log(source: string, message: string)$ void
+    }
+
+    class Program {
+        <<Client>>
+        +Main(args: string[])$ void
+    }
+
+    ICreditApplicationBuilder <|.. CreditApplicationBuilder : реалізує
+    CreditDirector o-- "1" ICreditApplicationBuilder : керує кроками
+    CreditApplicationBuilder ..> CreditApplication : створює у Build()
+    ICreditApplicationBuilder ..> CreditApplication : повертає
+    CreditApplicationBuilder ..> Logger : журнал
+    CreditDirector ..> Logger : журнал
+    Program ..> CreditApplicationBuilder : ручне покрокове складання
+    Program ..> CreditDirector : типова заявка
+
+    note for CreditApplicationBuilder "Build() перевіряє обов'язкові поля:<br/>клієнт, сума > 0, строк > 0.<br/>При помилці — InvalidOperationException<br/>і запис у журнал [Validation]."
+    note for CreditApplication "Конструктор internal: заявку<br/>можна отримати лише через Build().<br/>Всі властивості лише get — незмінний об'єкт."
+    note for CreditDirector "Типові сценарії складання<br/>описано в одному місці."

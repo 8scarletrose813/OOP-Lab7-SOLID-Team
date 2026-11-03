@@ -1,0 +1,93 @@
+---
+title: Завдання 3. Factory Method — формування виписок (Банк «Прут-Кредит»)
+---
+classDiagram
+    direction TB
+
+    class StatementGenerator {
+        <<abstract · Creator>>
+        +CreateStatement(period: string, income: decimal, expense: decimal)* BankStatement
+        +ProcessStatement(period: string, income: decimal, expense: decimal) void
+    }
+
+    class ClientStatementGenerator {
+        <<ConcreteCreator>>
+        +CreateStatement(period, income, expense) BankStatement
+    }
+    class TaxStatementGenerator {
+        <<ConcreteCreator>>
+        +CreateStatement(period, income, expense) BankStatement
+    }
+    class CompanyStatementGenerator {
+        <<ConcreteCreator>>
+        +CreateStatement(period, income, expense) BankStatement
+    }
+    class AuditorStatementGenerator {
+        <<ConcreteCreator · нова без змін процесу>>
+        +CreateStatement(period, income, expense) BankStatement
+    }
+
+    class BankStatement {
+        <<abstract · Product>>
+        +Period: string «get»
+        +TotalIncome: decimal «get»
+        +TotalExpense: decimal «get»
+        #BankStatement(period: string, totalIncome: decimal, totalExpense: decimal)
+        +GenerateAndSend()* void
+    }
+
+    class PdfClientStatement {
+        <<ConcreteProduct>>
+        +PdfClientStatement(period, income, expense)
+        +GenerateAndSend() void
+    }
+    class XmlTaxStatement {
+        <<ConcreteProduct>>
+        +XmlTaxStatement(period, income, expense)
+        +GenerateAndSend() void
+    }
+    class CsvCompanyStatement {
+        <<ConcreteProduct>>
+        +CsvCompanyStatement(period, income, expense)
+        +GenerateAndSend() void
+    }
+    class AuditorStatement {
+        <<ConcreteProduct · новий без змін процесу>>
+        +AuditorStatement(period, income, expense)
+        +GenerateAndSend() void
+    }
+
+    class Logger {
+        <<utility>>
+        +Log(source: string, message: string)$ void
+    }
+
+    class Program {
+        <<Client>>
+        +Main(args: string[])$ void
+    }
+
+    StatementGenerator <|-- ClientStatementGenerator
+    StatementGenerator <|-- TaxStatementGenerator
+    StatementGenerator <|-- CompanyStatementGenerator
+    StatementGenerator <|-- AuditorStatementGenerator
+
+    BankStatement <|-- PdfClientStatement
+    BankStatement <|-- XmlTaxStatement
+    BankStatement <|-- CsvCompanyStatement
+    BankStatement <|-- AuditorStatement
+
+    StatementGenerator ..> BankStatement : factory method повертає
+    ClientStatementGenerator ..> PdfClientStatement : «create»
+    TaxStatementGenerator ..> XmlTaxStatement : «create»
+    CompanyStatementGenerator ..> CsvCompanyStatement : «create»
+    AuditorStatementGenerator ..> AuditorStatement : «create»
+
+    StatementGenerator ..> Logger : журнал
+    PdfClientStatement ..> Logger : журнал
+    XmlTaxStatement ..> Logger : журнал
+    CsvCompanyStatement ..> Logger : журнал
+    AuditorStatement ..> Logger : журнал
+    Program ..> StatementGenerator : працює через базовий тип
+
+    note for StatementGenerator "ProcessStatement() — єдиний процес:<br/>1) вибір операцій, 2) підсумки,<br/>3) CreateStatement() + GenerateAndSend(),<br/>4) завершення. Конкретних класів<br/>документів не знає, розгалужень немає."

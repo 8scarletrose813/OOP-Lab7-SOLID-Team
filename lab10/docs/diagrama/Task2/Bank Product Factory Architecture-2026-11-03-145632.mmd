@@ -1,0 +1,129 @@
+classDiagram
+    direction TB
+
+    class BankCard {
+        <<Abstract Product>>
+        +getCardDetails() String
+    }
+    class Account {
+        <<Abstract Product>>
+        +getAccountDetails() String
+    }
+    class TariffPlan {
+        <<Abstract Product>>
+        +getTariffDetails() String
+    }
+    class BankProductFactory {
+        <<Abstract Factory>>
+        +createCard() BankCard
+        +createAccount() Account
+        +createTariff() TariffPlan
+    }
+
+    class RetailCard {
+        <<Concrete Product>>
+        +getCardDetails() String
+    }
+    class RetailAccount {
+        <<Concrete Product>>
+        +getAccountDetails() String
+    }
+    class RetailTariff {
+        <<Concrete Product>>
+        +getTariffDetails() String
+    }
+    class RetailProductFactory {
+        <<Concrete Factory>>
+        +createCard() BankCard
+        +createAccount() Account
+        +createTariff() TariffPlan
+    }
+
+    class PremiumCard {
+        <<Concrete Product>>
+        +getCardDetails() String
+    }
+    class PremiumAccount {
+        <<Concrete Product>>
+        +getAccountDetails() String
+    }
+    class PremiumTariff {
+        <<Concrete Product>>
+        +getTariffDetails() String
+    }
+    class PremiumProductFactory {
+        <<Concrete Factory>>
+        +createCard() BankCard
+        +createAccount() Account
+        +createTariff() TariffPlan
+    }
+
+    class BusinessCard {
+        <<Concrete Product>>
+        +getCardDetails() String
+    }
+    class BusinessAccount {
+        <<Concrete Product>>
+        +getAccountDetails() String
+    }
+    class BusinessTariff {
+        <<Concrete Product>>
+        +getTariffDetails() String
+    }
+    class BusinessProductFactory {
+        <<Concrete Factory>>
+        +createCard() BankCard
+        +createAccount() Account
+        +createTariff() TariffPlan
+    }
+
+    class StudentCard {
+        <<Concrete Product>>
+        +getCardDetails() String
+    }
+    class StudentAccount {
+        <<Concrete Product>>
+        +getAccountDetails() String
+    }
+    class StudentTariff {
+        <<Concrete Product>>
+        +getTariffDetails() String
+    }
+    class StudentProductFactory {
+        <<Concrete Factory>>
+        +createCard() BankCard
+        +createAccount() Account
+        +createTariff() TariffPlan
+    }
+
+    class BankBranch {
+        <<Client>>
+        -String branchName
+        +BankBranch(String branchName)
+        +openClientPackage(String clientName, BankProductFactory factory) void
+    }
+
+    BankCard <|.. RetailCard
+    Account <|.. RetailAccount
+    TariffPlan <|.. RetailTariff
+    BankProductFactory <|.. RetailProductFactory
+
+    BankCard <|.. PremiumCard
+    Account <|.. PremiumAccount
+    TariffPlan <|.. PremiumTariff
+    BankProductFactory <|.. PremiumProductFactory
+
+    BankCard <|.. BusinessCard
+    Account <|.. BusinessAccount
+    TariffPlan <|.. BusinessTariff
+    BankProductFactory <|.. BusinessProductFactory
+
+    BankCard <|.. StudentCard
+    Account <|.. StudentAccount
+    TariffPlan <|.. StudentTariff
+    BankProductFactory <|.. StudentProductFactory
+
+    BankBranch ..> BankProductFactory : uses
+    BankBranch ..> BankCard : uses
+    BankBranch ..> Account : uses
+    BankBranch ..> TariffPlan : uses

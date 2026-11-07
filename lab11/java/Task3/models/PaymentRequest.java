@@ -1,5 +1,8 @@
 package Task3.models;
-
+/*Казначейство банку працює зі своїми PaymentRequest та PaymentResult,
+ а сторонній сервіс SwiftService приймає дані виключно в узагальненому закодованому
+ рядку фіксованого формату й повертає коди помилок (числа). -
+ Adapter*/
 public class PaymentRequest {
     private String senderAccount;
     private String receiverAccount;

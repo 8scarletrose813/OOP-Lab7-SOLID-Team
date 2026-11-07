@@ -1,0 +1,60 @@
+classDiagram
+    class BankCard {
+        <<interface>>
+        +getCost() double
+        +getDescription() String
+    }
+
+    class BaseCard {
+        -double baseCost
+        -String description
+        +getCost() double
+        +getDescription() String
+    }
+
+    class CardDecorator {
+        <<abstract>>
+        #BankCard card
+        +CardDecorator(BankCard card)
+        +getCost() double
+        +getDescription() String
+    }
+
+    class CashbackOption {
+        +CashbackOption(BankCard card)
+        +getCost() double
+        +getDescription() String
+    }
+
+    class TravelInsuranceOption {
+        +TravelInsuranceOption(BankCard card)
+        +getCost() double
+        +getDescription() String
+    }
+
+    class SmsNotificationOption {
+        +SmsNotificationOption(BankCard card)
+        +getCost() double
+        +getDescription() String
+    }
+
+    class IncreasedLimitOption {
+        +IncreasedLimitOption(BankCard card)
+        +getCost() double
+        +getDescription() String
+    }
+
+    class LoungeAccessOption {
+        +LoungeAccessOption(BankCard card)
+        +getCost() double
+        +getDescription() String
+    }
+
+    BankCard <|.. BaseCard : Realization
+    BankCard <|.. CardDecorator : Realization
+    CardDecorator o-- BankCard : Aggregation
+    CardDecorator <|-- CashbackOption : Inheritance
+    CardDecorator <|-- TravelInsuranceOption : Inheritance
+    CardDecorator <|-- SmsNotificationOption : Inheritance
+    CardDecorator <|-- IncreasedLimitOption : Inheritance
+    CardDecorator <|-- LoungeAccessOption : Inheritance

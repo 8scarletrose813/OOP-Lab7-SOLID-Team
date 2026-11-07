@@ -1,0 +1,41 @@
+classDiagram
+    class TreasuryPaymentProcessor {
+        <<interface>>
+        +processPayment(PaymentRequest request) PaymentResult
+    }
+
+    class PaymentRequest {
+        -String senderAccount
+        -String receiverAccount
+        -double amount
+        -String currency
+        +getSenderAccount() String
+        +getReceiverAccount() String
+        +getAmount() double
+        +getCurrency() String
+    }
+
+    class PaymentResult {
+        -boolean success
+        -String message
+        +isSuccess() boolean
+        +getMessage() String
+        +toString() String
+    }
+
+    class SwiftService {
+        +sendSwiftMessage(String sendSwift, double amount) int
+    }
+
+    class SwiftPaymentAdapter {
+        -SwiftService swiftService
+        +SwiftPaymentAdapter(SwiftService swiftService)
+        +processPayment(PaymentRequest request) PaymentResult
+    }
+
+    TreasuryPaymentProcessor <|.. SwiftPaymentAdapter : Realization
+    SwiftPaymentAdapter --> SwiftService : Association (1)
+    TreasuryPaymentProcessor ..> PaymentRequest : Dependency
+    TreasuryPaymentProcessor ..> PaymentResult : Dependency
+    SwiftPaymentAdapter ..> PaymentRequest : Dependency
+    SwiftPaymentAdapter ..> PaymentResult : Dependency

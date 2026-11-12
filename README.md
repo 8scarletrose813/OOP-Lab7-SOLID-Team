@@ -1,3 +1,16 @@
+# Лабораторна робота №12: СТРУКТУРНІ ШАБЛОНИ ПРОЄКТУВАННЯ: BRIDGE, COMPOSITE, FLYWEIGHT
+**Варіант: 7**
+**Предметна область: Банк «Прут-Кредит»**
+### Розподіл обов'язків у команді
+
+| **Виконавець**       | **Мовний стек** | **Розподіл завдань** |
+| -------------------- | --------------- | -------------------- |
+| Батрак Орина         | **C#**          | Task1                |
+| Резніченко Анастасія | **Java**        | Task 2               |
+| Батрак Орина         | **C#**          | Task 3               |
+| Кожен окремо         | **Java / C#**   | Task 4               |
+| Спільна робота       | **Java / C#**   | Task 5               |
+
 # Завдання 1. Структура банку і звітність: Composite
 
 **Проблема.** Банк має вкладену структуру: головний офіс, регіональні управління, відділення, каси. Код звітності містив окремі цикли для кожного рівня і не враховував міні-відділення, підпорядковані іншим відділенням.
@@ -22,6 +35,49 @@
 2. `PrintTree` виводить дерево із залишком і кількістю операцій кожного вузла.
 3. `PrintSummary` викликається для банку і для одного регіону. Це один і той самий метод.
 
+## Завдання 2 : Платіжні документи
+**Опис проблеми:** банк формує документи різних видів: платіжне доручення, квитанцію про оплату, довідку про стан рахунку. Кожен документ надається різними способами: друк у відділенні, PDF в онлайн-банкінгу, електронний документ з цифровим підписом для державних органів. Кожну комбінацію документа і способу реалізовано окремим класом, і додавання нового способу вимагало трьох нових класів.
+##### 1. Створила інтерфейс і канали доставки (`Task2.channels`)
+Описала спільний інтерфейс `DeliveryChannel` та реалізувала 3 базові канали (`BranchPrintChannel`, `OnlineBankingPdfChannel`, `DigitalSignatureChannel`), які виводять лог у форматі `[час] [Клас] подія`:
+```java 
+public interface DeliveryChannel { void deliver(String docTitle, String content); } 
+// Приклад у OnlineBankingPdfChannel: 
+@Override public void deliver(String docTitle, String content) { String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); 
+System.out.println("["+ time + "] " + "[OnlineBankingPdfChannel] " + docTitle + " " + content + " Формування PDF в онлайн-банкінгу"); } 
+``` 
+##### 2. Зробила базовий документ із «мостом» (`PaymentDocument`)
+У пакеті `Task2.documents` створила абстрактний клас `PaymentDocument`. Поле `protected DeliveryChannel channel` всередині нього — це і є **«міст»** до каналів доставки:
+```java 
+public abstract class PaymentDocument { 
+protected DeliveryChannel channel; 
+public PaymentDocument(DeliveryChannel channel) { 
+this.channel = channel; 
+} 
+public abstract void generate();
+ } 
+``` 
+##### 3. Реалізувала 3 конкретні документи
+Створила `PaymentOrder`, `PaymentReceipt` та `AccountStatement`, успадкувавши їх від `PaymentDocument`.
+У методі `generate()` кожен документ формує свої дані та передає їх у `channel.deliver(...)`:
+```java 
+// Приклад у AccountStatement: 
+@Override public void generate() { 
+String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); 
+System.out.println("["+ time + "] " + "[AccountStatement] " + " Підготовка довідки про стан рахунку"); 
+String content = "ПІБ: " + clientName + ", IBAN: " + iban + ", Залишок: " + balance; channel.deliver("Довідка про стан рахунку ", content);
+} 
+```
+##### 4. Розширила систему новим каналом «Дія» (`DiiaChannel`)
+Щоб додати надсилання в «Дію», створила **лише один** новий клас `DiiaChannel implements DeliveryChannel` у пакеті `Task2.channels`. Класи документів при цьому не змінювалися.
+##### 5. Зібрала демонстраційний сценарій (`Task2Runner`)
+У методі `runScenario()` (викликається з `main`) поєднала документи з різними каналами: одну квитанцію — для друку та PDF, а довідку про стан рахунку — для цифрового підпису та нового каналу «Дія»:
+ ```java 
+ DeliveryChannel deliveryChannel = new BranchPrintChannel(); 
+PaymentDocument paymentDocument = new PaymentReceipt(deliveryChannel, "КВ-1045", 1250.50, "Оплата комунальних послуг"); 
+paymentDocument.generate();
+ ```
+
+**Шаблон Bridge** вирішує цю проблему: ми розділяємо систему на дві незалежні частини - **що саме містить документ** (абстракція) і **як він доставляється** (реалізація) - та з’єднуємо їх через композицію. Завдяки цьому будь-який документ можна поєднати з будь-яким каналом під час виконання програми.
 
 ## Завдання 3. Історія операцій: Flyweight
 
@@ -50,3 +106,4 @@
 ## Спільне
 
 `Common/Logger.cs` формує рядки журналу `[час] [джерело] подія` і використовується в обох завданнях.
+

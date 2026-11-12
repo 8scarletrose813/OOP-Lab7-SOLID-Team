@@ -2,7 +2,6 @@ package Task2.channels;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
 public class OnlineBankingPdfChannel implements DeliveryChannel{
     @Override
     public void deliver(String docTitle, String content) {

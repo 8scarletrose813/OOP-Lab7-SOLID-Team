@@ -8,7 +8,6 @@ public class CreditCommitteeHandler extends ApprovalHandler {
     public CreditCommitteeHandler (double maxAmount) {
         this.maxAmount = maxAmount;
     }
-
     @Override
     public void process(LoanApplication application) {
         System.out.println("[" + getCurrentTime() + "] [" + "CreditCommitteeHandler" + "] Отримано заявку "

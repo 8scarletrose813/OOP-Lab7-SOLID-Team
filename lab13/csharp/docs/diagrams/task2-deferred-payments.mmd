@@ -1,0 +1,153 @@
+classDiagram
+    direction TB
+
+    class IPaymentCommand {
+        <<interface>>
+        +int Id
+        +string Title
+        +string Description
+        +decimal Amount
+        +DateOnly ScheduledDate
+        +int? RepeatEveryDays
+        +PaymentStatus Status
+        +DateOnly? ExecutedOn
+        +Execute(DateOnly operationDay) void
+        +Reverse() void
+        +Cancel() void
+        +CreateNextOccurrence() IPaymentCommand
+    }
+
+    class PaymentCommand {
+        <<abstract>>
+        -int _lastId$
+        #PaymentCommand(decimal amount, DateOnly date, int? repeat)
+        +Execute(DateOnly operationDay) void
+        +Reverse() void
+        +Cancel() void
+        +CreateNextOccurrence() IPaymentCommand
+        #DoExecute()* void
+        #DoReverse()* void
+        #CreateCopy(DateOnly date)* PaymentCommand
+        -EnsureStatus(PaymentStatus expected, string action) void
+    }
+
+    class TransferPayment {
+        -Account _from
+        -Account _to
+        #DoExecute() void
+        #DoReverse() void
+        #CreateCopy(DateOnly date) PaymentCommand
+    }
+
+    class UtilityPayment {
+        -Account _payer
+        -string _provider
+        -string _service
+        #DoExecute() void
+        #DoReverse() void
+        #CreateCopy(DateOnly date) PaymentCommand
+    }
+
+    class DepositTopUp {
+        -Account _account
+        -Account _deposit
+        #DoExecute() void
+        #DoReverse() void
+        #CreateCopy(DateOnly date) PaymentCommand
+    }
+
+    class Account {
+        +string Owner
+        +decimal Balance
+        +Withdraw(decimal amount) void
+        +Deposit(decimal amount) void
+    }
+
+    class PaymentStatus {
+        <<enumeration>>
+        Pending
+        Executed
+        Cancelled
+        Reversed
+        Failed
+    }
+
+    class PaymentScheduler {
+        -List~IPaymentCommand~ _queue
+        -List~IPaymentCommand~ _executed
+        -IBankClock _clock
+        -IOperationLog _log
+        +IReadOnlyList~IPaymentCommand~ Queue
+        +Schedule(IPaymentCommand payment) void
+        +Cancel(int paymentId) void
+        +ProcessDue() void
+        +Reverse(int paymentId) void
+    }
+
+    class IBankClock {
+        <<interface>>
+        +DateOnly Today
+    }
+
+    class BankClock {
+        +DateOnly Today
+        +AdvanceTo(DateOnly date) void
+    }
+
+    class IOperationLog {
+        <<interface>>
+        +IReadOnlyList~LogEntry~ Entries
+        +Write(string source, string message) void
+    }
+
+    class OperationLog {
+        -IBankClock _clock
+        -List~LogEntry~ _entries
+        +Write(string source, string message) void
+    }
+
+    class LogEntry {
+        <<record>>
+        +DateOnly Date
+        +string Source
+        +string Message
+        +ToString() string
+    }
+
+    class DeferredPaymentsDemo {
+        <<static>>
+        +Run()$ void
+    }
+
+    IPaymentCommand <|.. PaymentCommand
+    PaymentCommand <|-- TransferPayment
+    PaymentCommand <|-- UtilityPayment
+    PaymentCommand <|-- DepositTopUp
+
+    TransferPayment --> "2" Account : from, to
+    UtilityPayment --> "1" Account : payer
+    DepositTopUp --> "2" Account : account, deposit
+    PaymentCommand ..> PaymentStatus
+    PaymentCommand ..> PaymentCommand : creates next occurrence
+
+    PaymentScheduler o-- "0..*" IPaymentCommand : queue
+    PaymentScheduler o-- "0..*" IPaymentCommand : executed
+    PaymentScheduler ..> IBankClock
+    PaymentScheduler ..> IOperationLog
+
+    IBankClock <|.. BankClock
+    IOperationLog <|.. OperationLog
+    OperationLog ..> IBankClock
+    OperationLog *-- "0..*" LogEntry
+
+    DeferredPaymentsDemo ..> PaymentScheduler
+    DeferredPaymentsDemo ..> IPaymentCommand
+
+    note for IPaymentCommand "Command: спільний інтерфейс платежу (Execute / Reverse)"
+    note for PaymentCommand "Abstract Command + Template Method: перевірка статусу, DoExecute/DoReverse у нащадках"
+    note for TransferPayment "ConcreteCommand"
+    note for UtilityPayment "ConcreteCommand"
+    note for DepositTopUp "ConcreteCommand"
+    note for Account "Receiver: виконує реальну дію над коштами"
+    note for PaymentScheduler "Invoker: черга, виконання за датою, скасування, сторнування в межах операційного дня"
+    note for DeferredPaymentsDemo "Client: збирає команди й передає Invoker"

@@ -1,0 +1,169 @@
+classDiagram
+    direction TB
+
+    class ILoanMediator {
+        <<interface>>
+        <<Mediator>>
+        +Notify(sender: ILoanParticipant, loanEvent: LoanEvent, application: LoanApplication) void
+    }
+
+    class LoanMediator {
+        <<ConcreteMediator>>
+        -_manager: ILoanManager
+        -_scoring: IScoringService
+        -_security: ISecurityService
+        -_legal: ILegalDepartment
+        -_cashier: ICashier
+        +LoanMediator(manager, scoring, security, legal, cashier)
+        +Notify(sender: ILoanParticipant, loanEvent: LoanEvent, application: LoanApplication) void
+        -StartReview(application: LoanApplication) void
+        -ContinueIfApproved(application: LoanApplication) void
+        -Reject(application: LoanApplication, source: ILoanParticipant) void
+        -Log(message: string)$ void
+        -Describe(loanEvent: LoanEvent)$ string
+    }
+
+    class ILoanParticipant {
+        <<interface>>
+        <<Colleague>>
+        +Name: string
+        +SetMediator(mediator: ILoanMediator) void
+    }
+
+    class ParticipantBase {
+        <<abstract>>
+        <<Colleague>>
+        #Mediator: ILoanMediator
+        +Name: string
+        #ParticipantBase(name: string)
+        +SetMediator(mediator: ILoanMediator) void
+        #Log(message: string) void
+    }
+
+    class ILoanManager {
+        <<interface>>
+        +Submit(application: LoanApplication) void
+        +OnRejected(application: LoanApplication, rejectedBy: string) void
+        +OnCompleted(application: LoanApplication) void
+    }
+
+    class IScoringService {
+        <<interface>>
+        +Evaluate(application: LoanApplication) void
+    }
+
+    class ISecurityService {
+        <<interface>>
+        +Check(application: LoanApplication) void
+    }
+
+    class ILegalDepartment {
+        <<interface>>
+        +PrepareContract(application: LoanApplication) void
+    }
+
+    class ICashier {
+        <<interface>>
+        +IssueFunds(application: LoanApplication) void
+    }
+
+    class LoanManager {
+        <<ConcreteColleague>>
+        +Submit(application: LoanApplication) void
+        +OnRejected(application: LoanApplication, rejectedBy: string) void
+        +OnCompleted(application: LoanApplication) void
+    }
+
+    class ScoringService {
+        <<ConcreteColleague>>
+        -MinScore: int$
+        +Evaluate(application: LoanApplication) void
+    }
+
+    class SecurityService {
+        <<ConcreteColleague>>
+        +Check(application: LoanApplication) void
+    }
+
+    class LegalDepartment {
+        <<ConcreteColleague>>
+        +PrepareContract(application: LoanApplication) void
+    }
+
+    class Cashier {
+        <<ConcreteColleague>>
+        +IssueFunds(application: LoanApplication) void
+    }
+
+    class LoanApplication {
+        <<model>>
+        +Id: int
+        +ClientName: string
+        +Amount: decimal
+        +CreditScore: int
+        +IsRisky: bool
+        +Status: LoanStatus
+        +ScoringApproved: bool?
+        +SecurityApproved: bool?
+    }
+
+    class LoanEvent {
+        <<enumeration>>
+        ApplicationSubmitted
+        ScoringPassed
+        ScoringFailed
+        SecurityPassed
+        SecurityFailed
+        ContractSigned
+        FundsIssued
+    }
+
+    class LoanStatus {
+        <<enumeration>>
+        Submitted
+        UnderReview
+        ContractPreparation
+        ContractSigned
+        Issued
+        Rejected
+    }
+
+    class EventLog {
+        <<static>>
+        -_time: DateTime$
+        +Write(source: string, message: string)$ void
+    }
+
+    ILoanMediator <|.. LoanMediator
+    ILoanParticipant <|.. ParticipantBase
+    ILoanParticipant <|-- ILoanManager
+    ILoanParticipant <|-- IScoringService
+    ILoanParticipant <|-- ISecurityService
+    ILoanParticipant <|-- ILegalDepartment
+    ILoanParticipant <|-- ICashier
+
+    ParticipantBase <|-- LoanManager
+    ParticipantBase <|-- ScoringService
+    ParticipantBase <|-- SecurityService
+    ParticipantBase <|-- LegalDepartment
+    ParticipantBase <|-- Cashier
+
+    ILoanManager <|.. LoanManager
+    IScoringService <|.. ScoringService
+    ISecurityService <|.. SecurityService
+    ILegalDepartment <|.. LegalDepartment
+    ICashier <|.. Cashier
+
+    LoanMediator "1" o-- "1" ILoanManager
+    LoanMediator "1" o-- "1" IScoringService
+    LoanMediator "1" o-- "1" ISecurityService
+    LoanMediator "1" o-- "1" ILegalDepartment
+    LoanMediator "1" o-- "1" ICashier
+
+    ParticipantBase "*" --> "1" ILoanMediator : Mediator
+
+    LoanApplication "1" *-- "1" LoanStatus
+    ILoanMediator ..> LoanEvent
+    ILoanMediator ..> LoanApplication
+    ParticipantBase ..> EventLog
+    LoanMediator ..> EventLog

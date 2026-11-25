@@ -15,7 +15,7 @@ public class CurrencyRateService {
         DateTimeFormatter time = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return LocalDateTime.now().format(time);
     }
-    public void  subscribe(RateObserver observer){
+    public void subscribe(RateObserver observer){
         if (!subscribers.contains(observer)){
             subscribers.add(observer);
             System.out.println("[" + getCurrentTime() +"] [CurrencyRateService] Підписано нового отримувача: " + observer.getClass().getSimpleName());

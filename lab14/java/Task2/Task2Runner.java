@@ -27,7 +27,7 @@ public class Task2Runner {
         rateService.setRate("USD", 40.90);
         System.out.println();
 
-        System.out.println("Етап 3: Відписка клієнта та нова зміна курсу ---");
+        System.out.println("Етап 3: Відписка клієнта та нова зміна курсу ");
         rateService.unsubscribe(clientAlert);
 
         System.out.println();

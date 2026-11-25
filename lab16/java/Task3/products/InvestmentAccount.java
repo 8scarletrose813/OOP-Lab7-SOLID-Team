@@ -1,6 +1,5 @@
 package Task3.products;
 
-import Task3.visitors.BankProduct;
 import Task3.visitors.ProductVisitor;
 
 public class InvestmentAccount implements BankProduct {

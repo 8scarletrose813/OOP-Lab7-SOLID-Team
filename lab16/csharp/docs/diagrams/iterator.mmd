@@ -1,0 +1,128 @@
+classDiagram
+    direction LR
+
+    class IIterator~T~ {
+        <<interface>>
+        +HasNext() bool
+        +Next() T
+        +Reset() void
+    }
+
+    class IIterableCollection~T~ {
+        <<interface>>
+        +CreateIterator() IIterator~T~
+    }
+
+    class IOperationCollection {
+        <<interface>>
+        +CreateNewestFirstIterator(limit int) IIterator~Operation~
+        +CreateYearIterator(year int) IIterator~Operation~
+        +CreateThresholdIterator(threshold decimal) IIterator~Operation~
+        +Describe() string
+    }
+
+    class ClientOperations {
+        -Client _client
+        +CreateIterator() IIterator~Operation~
+        +CreateNewestFirstIterator(limit int) IIterator~Operation~
+        +CreateYearIterator(year int) IIterator~Operation~
+        +CreateThresholdIterator(threshold decimal) IIterator~Operation~
+        +Describe() string
+        -Flatten() IEnumerable~Operation~
+    }
+
+    class OperationIteratorBase {
+        <<abstract>>
+        -IReadOnlyList~Operation~ _items
+        -int _position
+        #Accepts(operation Operation) bool
+        +HasNext() bool
+        +Next() Operation
+        +Reset() void
+    }
+
+    class NewestFirstIterator {
+        +NewestFirstIterator(source, limit int)
+    }
+
+    class YearChronologicalIterator {
+        -int _year
+        #Accepts(operation Operation) bool
+    }
+
+    class ThresholdIterator {
+        -decimal _threshold
+        #Accepts(operation Operation) bool
+    }
+
+    class Client {
+        +string Name
+        +OpenAccount(number string, title string) Account
+    }
+
+    class Account {
+        +string Number
+        +string Title
+        +Add(operation Operation) void
+        +ArchiveOlderThan(cutoff DateTime) void
+    }
+
+    class MonthBlock {
+        +int Year
+        +int Month
+        +bool IsArchived
+        +Add(operation Operation) void
+        +Archive() void
+    }
+
+    class Operation {
+        <<record>>
+        +string Id
+        +string AccountNumber
+        +DateTime Date
+        +decimal Amount
+        +string Description
+    }
+
+    class ScenarioRunner {
+        -decimal MonitoringThreshold$
+        +ShowLatestOperations(count int) void
+        +ShowYearReport(year int) void
+        +ShowFinancialMonitoringWithParallelTraversal() void
+        -Traverse(source string, iterator IIterator~Operation~) int
+    }
+
+    class EventLog {
+        +Write(source string, message string) void
+    }
+
+    IIterableCollection <|-- IOperationCollection
+    IOperationCollection <|.. ClientOperations
+    IIterator <|.. OperationIteratorBase
+    OperationIteratorBase <|-- NewestFirstIterator
+    OperationIteratorBase <|-- YearChronologicalIterator
+    OperationIteratorBase <|-- ThresholdIterator
+
+    ClientOperations o-- "1" Client : обгортає
+    Client "1" *-- "1..*" Account
+    Account "1" *-- "0..*" MonthBlock
+    MonthBlock "1" *-- "0..*" Operation
+    OperationIteratorBase o-- "0..*" Operation : знімок
+
+    ClientOperations ..> NewestFirstIterator : створює
+    ClientOperations ..> YearChronologicalIterator : створює
+    ClientOperations ..> ThresholdIterator : створює
+
+    ScenarioRunner ..> IOperationCollection : використовує
+    ScenarioRunner ..> IIterator : використовує
+    ScenarioRunner --> "1" EventLog
+
+    note for IIterator "Роль у шаблоні: Iterator"
+    note for IIterableCollection "Роль у шаблоні: Aggregate"
+    note for IOperationCollection "Роль у шаблоні: Aggregate з кількома фабричними методами"
+    note for ClientOperations "Роль у шаблоні: ConcreteAggregate"
+    note for OperationIteratorBase "Спільна логіка курсора, Template Method"
+    note for NewestFirstIterator "Роль у шаблоні: ConcreteIterator (онлайн-банкінг)"
+    note for YearChronologicalIterator "Роль у шаблоні: ConcreteIterator (податковий звіт)"
+    note for ThresholdIterator "Роль у шаблоні: ConcreteIterator (фінмоніторинг)"
+    note for ScenarioRunner "Роль у шаблоні: Client"
